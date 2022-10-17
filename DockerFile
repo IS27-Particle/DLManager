@@ -22,7 +22,6 @@ ENV ReadarraAPI=""
 ENV ReadarraAPISHA512=""
 ENV ReadarrbAPI=""
 ENV ReadarrbAPISHA512=""
-ENV 
 
 COPY *.sh /etc/periodic/hourly/
 

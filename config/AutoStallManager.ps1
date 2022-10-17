@@ -96,18 +96,18 @@ ForEach ($Manager in $MediaManagers) {
         $Queue = Invoke-RestMethod -Uri "$($QueueURL)?page=$($page)&pageSize=20&sortDirection=descending&sortKey=progress" -Headers $headers
         $Queue = Invoke-RestMethod -Uri "$($QueueURL)?page=$($page)&pageSize=$($Queue.totalRecords)&sortDirection=descending&sortKey=progress" -Headers $headers
         ForEach ($Client in $Torrents) {
-                If ($Client.connectionCMD -ne $null) {
+                If ($null -ne $Client.connectionCMD) {
                         Invoke-Expression -Command $Client.connectionCMD
                 }
                 $Client.Torrents = Invoke-Expression -Command $Client.incompleteCMD
-                $Stalled = $Queue.records | Where {$_.status -ne "completed" -and $_.downloadClient -eq "$($Client.Name)"}
+                $Stalled = $Queue.records | Where-Object {$_.status -ne "completed" -and $_.downloadClient -eq "$($Client.Name)"}
                 Foreach ($QEpisode in $Stalled) {
                         $Torrent = $Client.Torrents | Where-Object {$_."$($Client.downloadIDName)" -eq $QEpisode.downloadId}
                         Write-Host $QEpisode.title
                         If (Invoke-Expression -Command $($Client.stalledExecTest)) {
                                 $StallID = $($Torrent."$($Client.idName)")
                                 If ($StallList.containsKey("$($StallID)")){
-                                        If ([int]$StallList["$($StallID)"] -gt $StallAge -or Invoke-Expression -Command $Client.ageTest) {
+                                        If ([int]$StallList["$($StallID)"] -gt $StallAge -or $(Invoke-Expression -Command $Client.ageTest)) {
                                                 Write-Host "Removing Stalled Torrent - $($Torrent.Name)"
                                                 Invoke-RestMethod -Method 'DELETE' -Uri "$QueueURL/$($QEpisode.id)?$($AuthURL)&$($Client.blacklistname)=true"
                                                 $StallList.remove("$($StallID)")
