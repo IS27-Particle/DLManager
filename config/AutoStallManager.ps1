@@ -24,6 +24,7 @@ $Torrents = @(
                 alltorrentsCMD='qbt torrent list --url $($Client["URL"]) --username $($Client["User"]) --password $($Client["PWD"]) --format json | convertfrom-json'
                 ageTest='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.added_on)).Days -gt $CompleteAge'
                 ageEval='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.added_on)).Days'
+                dlProg='$Torrent.DownloadedEver'
         }
         @{
                 Name="transmission"
@@ -39,6 +40,7 @@ $Torrents = @(
                 alltorrentsCMD='Get-TransmissionTorrents'
                 ageTest='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.AddedDate)).Days -gt $CompleteAge'
                 ageEval='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.AddedDate)).Days'
+                dlProg='$Torrent.completed'
         }
 )
 
@@ -124,6 +126,7 @@ ForEach ($Manager in $MediaManagers) {
                                 } Else {
                                         Write-Host "Adding $($Torrent.Name) to Counter JSON"
                                         $StallList["$($StallID)"] = "1"
+                                        $StallList["$($StallID)Prog"] = Invoke-Expression -Command $Client.dlProg
                                         $Marked["$($StallID)"] = $true
                                 }
                         }
