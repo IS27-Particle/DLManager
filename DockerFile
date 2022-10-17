@@ -1,0 +1,68 @@
+FROM alpine
+
+ENV ServerAddr="127.0.0.1"
+ENV SonarrAddr=$ServerAddr
+ENV RadarrAddr=$ServerAddr
+ENV LidarrAddr=$ServerAddr
+ENV ReadarraAddr=$ServerAddr
+ENV ReadarrbAddr=$ServerAddr
+ENV qbtAddr=$ServerAddr
+ENV transAddr=$ServerAddr
+ENV qbtURL="http://$($ServerAddr):8082"
+ENV qbtUser="admin"
+ENV qbtPWD="adminadmin"
+ENV qbtPWDSHA512=""
+ENV SonarrAPI=""
+ENV SonarrAPISHA512=""
+ENV RadarrAPI=""
+ENV RadarrAPISHA512=""
+ENV LidarrAPI=""
+ENV LidarrAPISHA512=""
+ENV ReadarraAPI=""
+ENV ReadarraAPISHA512=""
+ENV ReadarrbAPI=""
+ENV ReadarrbAPISHA512=""
+ENV 
+
+COPY *.sh /etc/periodic/hourly/
+
+RUN apk -U upgrade && \
+	apk add --no-cache \
+	ca-certificates \
+	less \
+	ncurses-terminfo-base \
+	krb5-libs \
+	libgcc \
+	libintl \
+	libssl1.1 \
+	libstdc++ \
+	tzdata \
+	userspace-rcu \
+	zlib \
+	icu-libs \
+	curl \
+	busybox-initscripts \
+	icu-libs \
+	krb5-libs \
+	libgcc \
+	libintl \
+	libssl1.1 \
+	libstdc++ \
+	zlib && \
+	apk -X https://dl-cdn.alpinelinux.org/alpine/edge/main add --no-cache \
+	lttng-ust && \
+	apk -X https://dl-cdn.alpinelinux.org/alpine/v3.14/main add --no-cache unrar && \
+	curl -L https://github.com/PowerShell/PowerShell/releases/download/v7.2.4/powershell-7.2.4-linux-alpine-x64.tar.gz -o /tmp/powershell.tar.gz && \
+	mkdir -p /opt/microsoft/powershell/7 && \
+	tar zxf /tmp/powershell.tar.gz -C /opt/microsoft/powershell/7 && \
+	chmod +x /opt/microsoft/powershell/7/pwsh && \
+	ln -s /opt/microsoft/powershell/7/pwsh /usr/bin/pwsh && \
+	chmod +x /etc/periodic/hourly/*.sh && \
+	pwsh -Command "& {Install-Module -Name Transmission -Confirm:\$false -Force}" && \
+	curl -L https://github.com/fedarovich/qbittorrent-cli/releases/download/v1.7.22220.1/qbt-linux-alpine-x64-1.7.22220.1.tar.gz -o /tmp/qbt-linux-alpine-x64-1.7.22220.1.tar.gz && \
+	mkdir /usr/lib/qbittorrent-cli && \
+	tar -xzvf /tmp/qbt-linux-alpine-x64-1.7.22220.1.tar.gz -C /usr/lib/qbittorrent-cli && \
+	chmod a+x /usr/lib/qbittorrent-cli/qbt && \
+	ln -sf /usr/lib/qbittorrent-cli/qbt /usr/bin/qbt
+
+ENTRYPOINT [ "/config/Init.sh" ]
