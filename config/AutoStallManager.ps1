@@ -120,6 +120,7 @@ ForEach ($Manager in $MediaManagers) {
                                         } ElseIf (-not $Marked["$($Torrent.id)"]) {
                                                 Write-Host "Promoted from $([string]$([int]$($StallList["$($StallID)"]))) to $([string]$([int]$($StallList["$($StallID)"])+1))"
                                                 $StallList["$($StallID)"] = [string]$([int]$($StallList["$($StallID)"])+1)
+                                                $StallList["$($StallID)Prog"] = Invoke-Expression -Command $Client.dlProg
                                                 $OrigList.remove("$($StallID)")
                                                 $Marked["$($StallID)"] = $true
                                         }
