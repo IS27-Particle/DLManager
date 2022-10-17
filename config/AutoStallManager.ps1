@@ -115,14 +115,28 @@ ForEach ($Manager in $MediaManagers) {
                                                 Write-Host "Removing Stalled Torrent - $($Torrent.Name)"
                                                 Invoke-RestMethod -Method 'DELETE' -Uri "$QueueURL/$($QEpisode.id)?$($AuthURL)&$($Client.blacklistname)=true"
                                                 $StallList.remove("$($StallID)")
+                                                $StallList.remove("$($StallID)Prog")
                                                 $OrigList.remove("$($StallID)")
+                                                $OrigList.remove("$($StallID)Prog")
                                                 $Marked.remove("$($StallID)")
+                                                $Marked.remove("$($StallID)Prog")
                                         } ElseIf (-not $Marked["$($Torrent.id)"]) {
-                                                Write-Host "Promoted from $([string]$([int]$($StallList["$($StallID)"]))) to $([string]$([int]$($StallList["$($StallID)"])+1))"
-                                                $StallList["$($StallID)"] = [string]$([int]$($StallList["$($StallID)"])+1)
-                                                $StallList["$($StallID)Prog"] = Invoke-Expression -Command $Client.dlProg
-                                                $OrigList.remove("$($StallID)")
-                                                $Marked["$($StallID)"] = $true
+                                                If ($StallList["$($StallID)Prog"] -eq $(Invoke-Expression -Command $Client.dlProg)) {
+                                                        Write-Host "Promoted from $([string]$([int]$($StallList["$($StallID)"]))) to $([string]$([int]$($StallList["$($StallID)"])+1))"
+                                                        $StallList["$($StallID)"] = [string]$([int]$($StallList["$($StallID)"])+1)
+                                                        $StallList["$($StallID)Prog"] = Invoke-Expression -Command $Client.dlProg
+                                                        $OrigList.remove("$($StallID)")
+                                                        $OrigList.remove("$($StallID)Prog")
+                                                        $Marked["$($StallID)"] = $true
+                                                } else {
+                                                        Write-Host "Removing $($StallID)"
+                                                        $StallList.remove("$($StallID)")
+                                                        $StallList.remove("$($StallID)Prog")
+                                                        $OrigList.remove("$($StallID)")
+                                                        $OrigList.remove("$($StallID)Prog")
+                                                        $Marked.remove("$($StallID)")
+                                                        $Marked.remove("$($StallID)Prog")
+                                                }
                                         }
                                 } Else {
                                         Write-Host "Adding $($Torrent.Name) to Counter JSON"
@@ -158,13 +172,25 @@ ForEach ($Client in $Torrents) {
                                 Invoke-Expression -Command $Client.removeCMD
                                 $OrigList.remove($StalledID)
                                 $StallList.remove($StalledID)
+                                $OrigList.remove("$($StalledID)Prog")
+                                $StallList.remove("$($StalledID)Prog")
                         } Else {
-                                $StallList["$($StalledID)"] = [string]$([int]$($StallList["$($StalledID)"])+1)
-                                $OrigList.remove($StalledID)
+                                If ($StallList["$($StallID)Prog"] -eq $(Invoke-Expression -Command $Client.dlProg)) {
+                                        $StallList["$($StalledID)"] = [string]$([int]$($StallList["$($StalledID)"])+1)
+                                        $StallList["$($StalledID)Prog"] = Invoke-Expression -Command $Client.dlProg
+                                        $OrigList.remove($StalledID)
+                                        $OrigList.remove("$($StalledID)Prog")
+                                } Else {
+                                        $OrigList.remove($StalledID)
+                                        $StallList.remove($StalledID)
+                                        $OrigList.remove("$($StalledID)Prog")
+                                        $StallList.remove("$($StalledID)Prog")
+                                }
                         }
                 } Else {
                         If (-not $StallList.containsKey("$($StalledID)")){
                                 $StallList["$($StalledID)"] = "1"
+                                $StallList["$($StalledID)Prog"] = Invoke-Expression -Command $Client.dlProg
                         }
                 }
         }
@@ -180,6 +206,7 @@ ForEach ($Client in $Torrents) {
 
 Foreach ($item in $OrigList.keys) {
         $StallList.remove("$item")
+        $StallList.remove("$($item)Prog")
 }
 
 $StallList | Convertto-JSON | Out-File "$PSScriptRoot/StallList.json"
