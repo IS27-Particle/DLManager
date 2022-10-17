@@ -124,7 +124,7 @@ ForEach ($Manager in $MediaManagers) {
                                                 If ($StallList["$($StallID)Prog"] -eq $(Invoke-Expression -Command $Client.dlProg)) {
                                                         Write-Host "Promoted from $([string]$([int]$($StallList["$($StallID)"]))) to $([string]$([int]$($StallList["$($StallID)"])+1))"
                                                         $StallList["$($StallID)"] = [string]$([int]$($StallList["$($StallID)"])+1)
-                                                        $StallList["$($StallID)Prog"] = Invoke-Expression -Command $Client.dlProg
+                                                        $StallList["$($StallID)Prog"] = $(Invoke-Expression -Command $Client.dlProg)
                                                         $OrigList.remove("$($StallID)")
                                                         $OrigList.remove("$($StallID)Prog")
                                                         $Marked["$($StallID)"] = $true
@@ -177,7 +177,7 @@ ForEach ($Client in $Torrents) {
                         } Else {
                                 If ($StallList["$($StallID)Prog"] -eq $(Invoke-Expression -Command $Client.dlProg)) {
                                         $StallList["$($StalledID)"] = [string]$([int]$($StallList["$($StalledID)"])+1)
-                                        $StallList["$($StalledID)Prog"] = Invoke-Expression -Command $Client.dlProg
+                                        $StallList["$($StalledID)Prog"] = $(Invoke-Expression -Command $Client.dlProg)
                                         $OrigList.remove($StalledID)
                                         $OrigList.remove("$($StalledID)Prog")
                                 } Else {
@@ -198,7 +198,7 @@ ForEach ($Client in $Torrents) {
         Foreach ($Torrent in $AllTorrents) {
                 If (Invoke-Expression -Command $Client.ageTest) {
                         $StalledID = $Torrent."$($Client.idName)"
-                        Write-Host "$($Torrent.Name) will be removed, Torrent age is $($Client.ageEval)"
+                        Write-Host "$($Torrent.Name) will be removed, Torrent age is $(Invoke-Expression -Command $Client.ageEval)"
                         Invoke-Expression -Command $Client.removeCMD
                 }
         }
