@@ -23,6 +23,7 @@ $Torrents = @(
                 incompleteCMD='qbt torrent list --url $($Client["URL"]) --username $($Client["User"]) --password $($Client["PWD"]) --filter downloading --format json | convertfrom-json'
                 alltorrentsCMD='qbt torrent list --url $($Client["URL"]) --username $($Client["User"]) --password $($Client["PWD"]) --format json | convertfrom-json'
                 ageTest='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.added_on)).Days -gt $CompleteAge'
+                ageEval='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.added_on)).Days'
         }
         @{
                 Name="transmission"
@@ -37,6 +38,7 @@ $Torrents = @(
                 incompleteCMD='Get-TransmissionTorrents -Incomplete'
                 alltorrentsCMD='Get-TransmissionTorrents'
                 ageTest='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.AddedDate)).Days -gt $CompleteAge'
+                ageEval='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.AddedDate)).Days'
         }
 )
 
@@ -166,6 +168,7 @@ ForEach ($Client in $Torrents) {
         Foreach ($Torrent in $AllTorrents) {
                 If (Invoke-Expression -Command $Client.ageTest) {
                         $StalledID = $Torrent."$($Client.idName)"
+                        Write-Host "$($Torrent.Name) will be removed, Torrent age is $($Client.ageEval)"
                         Invoke-Expression -Command $Client.removeCMD
                 }
         }
