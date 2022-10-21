@@ -60,7 +60,7 @@ $MediaManagers = @(
                 Name = "Sonarr"
                 apikey = "0a4a58aa0ebc4ac4bc362f8ec09e32f9"
                 URL = "http://$($ServerAddr):8989/sonarr/api/v3"
-                blacklistname = "blacklist"
+                blacklistname = "blocklist"
         }
         @{
                 Name = "Radarr"
