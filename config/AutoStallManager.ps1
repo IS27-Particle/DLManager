@@ -60,7 +60,7 @@ $MediaManagers = @(
                 Name = "Sonarr"
                 apikey = "0a4a58aa0ebc4ac4bc362f8ec09e32f9"
                 URL = "http://$($ServerAddr):8989/sonarr/api/v3"
-                blacklistname = "blocklist"
+                blacklistname = "blacklist"
         }
         @{
                 Name = "Radarr"
@@ -113,7 +113,7 @@ ForEach ($Manager in $MediaManagers) {
                                 If ($StallList.containsKey("$($StallID)")){
                                         If ([int]$StallList["$($StallID)"] -gt $StallAge -or $(Invoke-Expression -Command $Client.ageTest)) {
                                                 Write-Host "Removing Stalled Torrent - $($Torrent.Name)"
-                                                Invoke-RestMethod -Method 'DELETE' -Uri "$QueueURL/$($QEpisode.id)?$($AuthURL)&$($Client.blacklistname)=true"
+                                                Invoke-RestMethod -Method 'DELETE' -Uri "$QueueURL/$($QEpisode.id)?$($AuthURL)&$($Manager.blacklistname)=true"
                                                 $StallList.remove("$($StallID)")
                                                 $StallList.remove("$($StallID)Prog")
                                                 $OrigList.remove("$($StallID)")
