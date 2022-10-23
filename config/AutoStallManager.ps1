@@ -129,7 +129,7 @@ ForEach ($Manager in $MediaManagers) {
                                                         $OrigList.remove("$($StallID)Prog")
                                                         $Marked["$($StallID)"] = $true
                                                 } else {
-                                                        Write-Host "Removing $($StallID)"
+                                                        Write-Host "Removing $($Torrent.Name) from Counter JSON"
                                                         $StallList.remove("$($StallID)")
                                                         $StallList.remove("$($StallID)Prog")
                                                         $OrigList.remove("$($StallID)")
