@@ -1,15 +1,20 @@
 #!/usr/bin/pwsh
 import-module Transmission
-Start-Transcript -Path "$PSScriptRoot/Log-2.txt" -Append
+$config = Get-Content /config/config.json | ConvertFrom-Json
+$LogFile = $config.LogFile
+Start-Transcript -Path $LogFile -Append
 
-$ServerAddr = "127.0.0.1"
+#$ServerAddr = "127.0.0.1"
 
-$StallAge = 24
-$OrphanAge = 360
-$CompleteAge = 15
+$StallAge = $config.StallAge
+$OrphanAge = $config.OrphanAge
+$CompleteAge = $config.CompleteAge
+$StallList = $config.StallList
+
+$Torrents = $config.Torrents
 
 # Torrent Client Auth
-[System.Collections.Arraylist]$Torrents = @()
+<#[System.Collections.Arraylist]$Torrents = @()
 $Torrents = @(
         @{
                 Name="qbittorrent"
@@ -42,12 +47,12 @@ $Torrents = @(
                 ageEval='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.AddedDate)).Days'
                 dlProg='$Torrent.DownloadedEver'
         }
-)
+)#>
 
 #StallList and Marked Array for Validation
 $global:StallList = @{}
-if (test-path "$PSScriptRoot/StallList.json") {
-        $global:StallList = $(Get-Content "$PSScriptRoot/StallList.json" | convertfrom-json -AsHashtable)
+if (test-path $StallList) {
+        $global:StallList = $(Get-Content $StallList | convertfrom-json -AsHashtable)
 }
 $global:OrigList = $global:StallList.Clone()
 $global:Marked = @{}
@@ -55,7 +60,9 @@ ForEach ($key in $global:StallList.keys) {
         $global:Marked[$key] = $false
 }
 
-$MediaManagers = @(
+$MediaManagers = $config.MediaManagers
+
+<#$MediaManagers = @(
         @{
                 Name = "Sonarr"
                 apikey = "0a4a58aa0ebc4ac4bc362f8ec09e32f9"
@@ -86,7 +93,7 @@ $MediaManagers = @(
                 URL = "http://$($ServerAddr):8787/readarrb/api/v1"
                 blacklistname = "blacklist"
         }
-)
+)#>
 
 ForEach ($Manager in $MediaManagers) {
         $apiKey = $Manager.apikey
@@ -209,6 +216,6 @@ Foreach ($item in $OrigList.keys) {
         $StallList.remove("$($item)Prog")
 }
 
-$StallList | Convertto-JSON | Out-File "$PSScriptRoot/StallList.json"
+$StallList | Convertto-JSON | Out-File $StallList
 
 Stop-Transcript

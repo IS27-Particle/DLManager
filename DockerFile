@@ -1,28 +1,5 @@
 FROM alpine
 
-ENV ServerAddr="127.0.0.1"
-ENV SonarrAddr=$ServerAddr
-ENV RadarrAddr=$ServerAddr
-ENV LidarrAddr=$ServerAddr
-ENV ReadarraAddr=$ServerAddr
-ENV ReadarrbAddr=$ServerAddr
-ENV qbtAddr=$ServerAddr
-ENV transAddr=$ServerAddr
-ENV qbtURL="http://$($ServerAddr):8082"
-ENV qbtUser="admin"
-ENV qbtPWD="adminadmin"
-ENV qbtPWDSHA512=""
-ENV SonarrAPI=""
-ENV SonarrAPISHA512=""
-ENV RadarrAPI=""
-ENV RadarrAPISHA512=""
-ENV LidarrAPI=""
-ENV LidarrAPISHA512=""
-ENV ReadarraAPI=""
-ENV ReadarraAPISHA512=""
-ENV ReadarrbAPI=""
-ENV ReadarrbAPISHA512=""
-
 COPY *.sh /etc/periodic/hourly/
 
 RUN apk -U upgrade && \
