@@ -9,7 +9,7 @@ Start-Transcript -Path $LogFile -Append
 $StallAge = $config.StallAge
 $OrphanAge = $config.OrphanAge
 $CompleteAge = $config.CompleteAge
-$StallList = $config.StallList
+$StallListFile = $config.StallListFile
 
 $Torrents = $config.Torrents
 
@@ -51,8 +51,8 @@ $Torrents = @(
 
 #StallList and Marked Array for Validation
 $global:StallList = @{}
-if (test-path $StallList) {
-        $global:StallList = $(Get-Content $StallList | convertfrom-json -AsHashtable)
+if (test-path $StallListFile) {
+        $global:StallList = $(Get-Content $StallListFile | convertfrom-json -AsHashtable)
 }
 $global:OrigList = $global:StallList.Clone()
 $global:Marked = @{}

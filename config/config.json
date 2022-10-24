@@ -2,7 +2,7 @@
     "StallAge": "24",
     "OrphanAge": "360",
     "CompleteAge": "15",
-    "StallList": "/config/StallList.json",
+    "StallListFile": "/config/StallList.json",
     "LogFile": "/config/Log-2.txt",
     "Torrents": [
         {
