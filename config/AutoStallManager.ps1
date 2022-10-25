@@ -216,6 +216,6 @@ Foreach ($item in $OrigList.keys) {
         $StallList.remove("$($item)Prog")
 }
 
-$StallList | Convertto-JSON | Out-File $StallList
+$StallList | Convertto-JSON | Out-File $StallListFile
 
 Stop-Transcript
