@@ -24,7 +24,8 @@ RUN apk -U upgrade && \
 	libintl \
 	libssl1.1 \
 	libstdc++ \
-	zlib && \
+	zlib \
+	unzip && \
 	apk -X https://dl-cdn.alpinelinux.org/alpine/edge/main add --no-cache \
 	lttng-ust && \
 	apk -X https://dl-cdn.alpinelinux.org/alpine/v3.14/main add --no-cache unrar && \
