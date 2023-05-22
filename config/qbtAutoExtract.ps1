@@ -1,6 +1,6 @@
 #!/usr/bin/pwsh
 
-Start-Transcript "$PSScriptRoot/qbtExtract.log"
+Start-Transcript "$PSScriptRoot/qbtExtract.log" -Force
 $Server = "127.0.0.1"
 $MediaManagers = @(
         @{
