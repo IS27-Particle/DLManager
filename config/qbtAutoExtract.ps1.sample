@@ -5,32 +5,26 @@ $Server = "127.0.0.1"
 $MediaManagers = @(
         @{
                 Name = "Sonarr"
-                apikey = "0a4a58aa0ebc4ac4bc362f8ec09e32f9"
-                URL = "http://$($Server):8989/sonarr/api/v3"
+                apikey = "SAMPLE"
+                URL = "http://$($Server):8989/api/v3"
                 QPath = "tv-sonarr"
         }
         @{
                 Name = "Radarr"
-                apikey = "53b5e1bf668f402aa92828ea7e649b0e"
-                URL = "http://$($Server):7878/radarr/api/v3"
+                apikey = "SAMPLE"
+                URL = "http://$($Server):7878/api/v3"
                 QPath = "radarr"
         }
         @{
                 Name = "Lidarr"
-                apikey = "1f3c3833b4b44d6582fe2500c9964f6b"
-                URL = "http://$($Server):8686/lidarr/api/v1"
+                apikey = "SAMPLE"
+                URL = "http://$($Server):8686/api/v1"
                 QPath = "lidarr"
         }
         @{
-                Name = "Readarra"
-                apikey = "1e7d22430a244b23bf1cb5f9ee38d4da"
-                URL = "http://$($Server):8788/readarra/api/v1"
-                QPath = "readarra"
-        }
-        @{
-                Name = "Readarrb"
-                apikey = "f085ea58aae04249b19542a924823197"
-                URL = "http://$($Server):8787/readarrb/api/v1"
+                Name = "Readarr"
+                apikey = "SAMPLE"
+                URL = "http://$($Server):8787/api/v1"
                 QPath = "readarrb"
         }
 )
