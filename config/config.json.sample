@@ -42,31 +42,31 @@
     "MediaManagers": [
         {
             "Name": "Sonarr",
-            "apikey": "0a4a58aa0ebc4ac4bc362f8ec09e32f9",
+            "apikey": "{SONARRAPIKEY}",
             "URL": "http://127.0.0.1:8989/sonarr/api/v3",
             "blacklistname": "blacklist"
         },
         {
             "Name": "Radarr",
-            "apikey": "53b5e1bf668f402aa92828ea7e649b0e",
+            "apikey": "{RADARRAPIKEY}",
             "URL": "http://127.0.0.1:7878/radarr/api/v3",
             "blacklistname": "blocklist"
         },
         {
             "Name": "Lidarr",
-            "apikey": "1f3c3833b4b44d6582fe2500c9964f6b",
+            "apikey": "{LIDARRAPIKEY}",
             "URL": "http://127.0.0.1:8686/lidarr/api/v1",
             "blacklistname": "blocklist"
         },
         {
             "Name": "Readarra",
-            "apikey": "1e7d22430a244b23bf1cb5f9ee38d4da",
+            "apikey": "{READARRAAPIKEY}",
             "URL": "http://127.0.0.1:8788/readarra/api/v1",
             "blacklistname": "blacklist"
         },
         {
             "Name": "Readarrb",
-            "apikey": "f085ea58aae04249b19542a924823197",
+            "apikey": "{READARRBAPIKEY}",
             "URL": "http://127.0.0.1:8787/readarrb/api/v1",
             "blacklistname": "blacklist"
         }

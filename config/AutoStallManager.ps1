@@ -3,8 +3,6 @@ import-module Transmission
 $config = Get-Content /config/config.json | ConvertFrom-Json
 $LogFile = $config.LogFile
 Start-Transcript -Path $LogFile -Append -Force
-	
-#$ServerAddr = "127.0.0.1"
 
 $StallAge = $config.StallAge
 $OrphanAge = $config.OrphanAge
@@ -13,42 +11,6 @@ $FailedImportAge = $config.FailedImportAge
 $StallListFile = $config.StallListFile
 
 $Torrents = $config.Torrents
-
-# Torrent Client Auth
-<#[System.Collections.Arraylist]$Torrents = @()
-$Torrents = @(
-        @{
-                Name="qbittorrent"
-                URL="http://$($ServerAddr):8082"
-                User="admin"
-                PWD="adminadmin"
-                downloadIDName="hash"
-                stalledExecTest='$Torrent -ne $Null -and $Torrent.state -ne "downloading" -and $Torrent.state -ne "forcedDL"'
-                idName="hash"
-                removeCMD='qbt torrent delete $StalledID --url $Client.URL --username $Client.User --password $Client.PWD -f'
-                incompleteCMD='qbt torrent list --url $($Client["URL"]) --username $($Client["User"]) --password $($Client["PWD"]) --filter downloading --format json | convertfrom-json'
-                alltorrentsCMD='qbt torrent list --url $($Client["URL"]) --username $($Client["User"]) --password $($Client["PWD"]) --format json | convertfrom-json'
-                ageTest='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.added_on)).Days -gt $CompleteAge'
-                ageEval='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.added_on)).Days'
-                dlProg='$Torrent.completed'
-        }
-        @{
-                Name="transmission"
-                URL="http://$($ServerAddr):9091/transmission/rpc"
-                User="matt"
-                PWD="Wiggin8!3"
-                downloadIDName="hashstring"
-                stalledExecTest='$Torrent -ne $Null -and $Torrent.IsStalled'
-                idName="id"
-                connectionCMD='Set-TransmissionCredentials -Host $Client.URL -User $Client.User -Password $Client.PWD'
-                removeCMD='$StalledID | Remove-TransmissionTorrents -DeleteData'
-                incompleteCMD='Get-TransmissionTorrents -Incomplete'
-                alltorrentsCMD='Get-TransmissionTorrents'
-                ageTest='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.AddedDate)).Days -gt $CompleteAge'
-                ageEval='($(Get-Date) - $(Get-Date -UnixTimeSeconds $Torrent.AddedDate)).Days'
-                dlProg='$Torrent.DownloadedEver'
-        }
-)#>
 
 #StallList and Marked Array for Validation
 $global:StallList = @{}
@@ -62,39 +24,6 @@ ForEach ($key in $global:StallList.keys) {
 }
 
 $MediaManagers = $config.MediaManagers
-
-<#$MediaManagers = @(
-        @{
-                Name = "Sonarr"
-                apikey = "0a4a58aa0ebc4ac4bc362f8ec09e32f9"
-                URL = "http://$($ServerAddr):8989/sonarr/api/v3"
-                blacklistname = "blacklist"
-        }
-        @{
-                Name = "Radarr"
-                apikey = "53b5e1bf668f402aa92828ea7e649b0e"
-                URL = "http://$($ServerAddr):7878/radarr/api/v3"
-                blacklistname = "blocklist"
-        }
-        @{
-                Name = "Lidarr"
-                apikey = "1f3c3833b4b44d6582fe2500c9964f6b"
-                URL = "http://$($ServerAddr):8686/lidarr/api/v1"
-                blacklistname = "blocklist"
-        }
-        @{
-                Name = "Readarra"
-                apikey = "1e7d22430a244b23bf1cb5f9ee38d4da"
-                URL = "http://$($ServerAddr):8788/readarra/api/v1"
-                blacklistname = "blacklist"
-        }
-        @{
-                Name = "Readarrb"
-                apikey = "f085ea58aae04249b19542a924823197"
-                URL = "http://$($ServerAddr):8787/readarrb/api/v1"
-                blacklistname = "blacklist"
-        }
-)#>
 
 ForEach ($Manager in $MediaManagers) {
         $apiKey = $Manager.apikey

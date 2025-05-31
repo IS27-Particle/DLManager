@@ -1,4 +1,5 @@
-Example json variables
+# Example json variables
+```
 {
     "StallAge": "24",
     "OrphanAge": "360",
@@ -71,3 +72,4 @@ Example json variables
         }
     ]
 }
+```
