@@ -2,13 +2,14 @@
 import-module Transmission
 $config = Get-Content /config/config.json | ConvertFrom-Json
 $LogFile = $config.LogFile
-Start-Transcript -Path $LogFile -Append
-
+Start-Transcript -Path $LogFile -Append -Force
+	
 #$ServerAddr = "127.0.0.1"
 
 $StallAge = $config.StallAge
 $OrphanAge = $config.OrphanAge
 $CompleteAge = $config.CompleteAge
+$FailedImportAge = $config.FailedImportAge
 $StallListFile = $config.StallListFile
 
 $Torrents = $config.Torrents
@@ -110,15 +111,30 @@ ForEach ($Manager in $MediaManagers) {
                 If ($null -ne $Client.connectionCMD) {
                         Invoke-Expression -Command $Client.connectionCMD
                 }
+		Write-Host "Starting $Client"
                 $Client.Torrents = Invoke-Expression -Command $Client.incompleteCMD
+                $AllTorrents = Invoke-Expression -Command $Client.alltorrentsCMD
                 $Stalled = $Queue.records | Where-Object {$_.status -ne "completed" -and $_.downloadClient -eq "$($Client.Name)"}
+                $Stalled = $Queue.records | Where-Object {$_.downloadClient -eq "$($Client.Name)"}
                 Foreach ($QEpisode in $Stalled) {
                         $Torrent = $Client.Torrents | Where-Object {$_."$($Client.downloadIDName)" -eq $QEpisode.downloadId}
-                        Write-Host $QEpisode.title
-                        If (Invoke-Expression -Command $($Client.stalledExecTest)) {
+                        Write-Host "$($QEpisode.status) - $($QEpisode.title)"
+                        Write-Host "QEpisode"
+                        Write-Host $QEpisode
+                        If ($Torrent -eq $null -and $QEpisode.status -eq "completed") {
+                                $Torrent = $AllTorrents | Where-Object {$_."$($Client.downloadIDName)" -eq $QEpisode.downloadId}
+                        } ElseIf ($Torrent -eq $null) {
+                                Write-Host "$($QEpisode.status) - $($QEpisode.title)"
+                                Write-Host "Skipping due to not found in Client"
+                                continue
+                        }
+			Write-Host "Torrent - $Torrent"
+                        If ((Invoke-Expression -Command $($Client.stalledExecTest)) -or $QEpisode.status -eq "completed") {
+                                Write-Host "Stalled Exec Test Passed"
                                 $StallID = $($Torrent."$($Client.idName)")
                                 If ($StallList.containsKey("$($StallID)")){
-                                        If ([int]$StallList["$($StallID)"] -gt $StallAge -or $(Invoke-Expression -Command $Client.ageTest)) {
+                                        Write-Host "$StallID exists in StallList"
+                                        If ((([int]$StallList["$($StallID)"] -gt $StallAge -or $(Invoke-Expression -Command $Client.ageTest)) -and $QEpisode.status -ne "completed") -or ($QEpisode.status -eq "completed" -and [int]$StallList["$($StallID)"] -gt $FailedImportAge)) {
                                                 Write-Host "Removing Stalled Torrent - $($Torrent.Name)"
                                                 Invoke-RestMethod -Method 'DELETE' -Uri "$QueueURL/$($QEpisode.id)?$($AuthURL)&$($Manager.blacklistname)=true"
                                                 $StallList.remove("$($StallID)")
@@ -172,7 +188,12 @@ while($x -gt 0) {
 }
 
 ForEach ($Client in $Torrents) {
-        $StalledIDs = $Client.Torrents["$($Client.idName)"]
+	if ($Client.Torrents.length -gt 0) {
+	        $StalledIDs = $Client.Torrents["$($Client.idName)"]
+	} else {
+		$StalledIDs = @()
+                write-host "$($Client.Name) had no stalled torrents"
+	}
         Foreach ($StalledID in $StalledIDs) {
                 If ($OrigList.containsKey("$($StalledID)")) {
                         If ([int]$OrigList["$($StalledID)"] -gt $OrphanAge) {
