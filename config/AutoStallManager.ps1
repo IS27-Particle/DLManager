@@ -65,7 +65,7 @@ ForEach ($Manager in $MediaManagers) {
                                         Write-Host "$StallID exists in StallList"
                                         If ((([int]$StallList["$($StallID)"] -gt $StallAge -or $(Invoke-Expression -Command $Client.ageTest)) -and $QEpisode.status -ne "completed") -or ($QEpisode.status -eq "completed" -and [int]$StallList["$($StallID)"] -gt $FailedImportAge)) {
                                                 Write-Host "Removing Stalled Torrent - $($Torrent.Name)"
-                                                Invoke-RestMethod -Method 'DELETE' -Uri "$QueueURL/$($QEpisode.id)?$($AuthURL)&$($Manager.blacklistname)=true"
+                                                Invoke-RestMethod -Method 'DELETE' -Uri "$QueueURL/$($QEpisode.id)?$($AuthURL)&$($Manager.blacklistname)=true&removeFromClient=$($config.removeFromClient)"
                                                 $StallList.remove("$($StallID)")
                                                 $StallList.remove("$($StallID)Prog")
                                                 $OrigList.remove("$($StallID)")
