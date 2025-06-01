@@ -100,7 +100,7 @@
 * ageEval - (required) Command used to get the value in days of the torrent's age.
 * dlProg - (required) Command used to get the progress of a torrent.
 
-### MediaManagers - Only Servarr Platform Supported (TODO: how can this be expanded?)
+### MediaManagers - Only Servarr Platform Supported (TODO: expand to be more dynamic)
 * Name - (required) Value used to identify this manager instance, used to organize the config JSON and output to logs.
 * apiKey - (required) Value used to authenticate to the manager API
 * URL - (required) Value used to communicate with the manager platform
