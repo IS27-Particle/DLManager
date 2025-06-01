@@ -74,3 +74,13 @@
     ]
 }
 ```
+
+## Breakdown of Variables
+* StallAge - Amount of iterations of the script run to consider a torrent stalled. If the script is set to run every hour this is equivalent to the amount of hours.
+* OrphanAge - Amount of days since torrent was added to client before final removal. Orphans are lingering torrents that are no longer present in the manager queue. When removeFromClient is false this is the amount of days until that torrent is finally removed.
+* CompleteAge - Amount of iterations to keep completed torrents left in the manager queue. They will remain in the queue when there was an issue importing the file so this will mean the download will be blacklisted. So if you want to allow yourself more time to manage manual imports set this value to something very high.
+* StallList - File path to the Stalled torrent list database. Each time a torrent is confirmed stalled it will appear and the count will increase if there's no change in progress.
+* LogFile - File Path for the log file.
+* removeFromClient - When a torrent is detected as stalled, should it also be removed from the download client. Boolean value (true or false)
+* Torrents - the list of download clients
+* MediaManagers - the list of Media managers (Servarr apps)
