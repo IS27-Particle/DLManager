@@ -84,3 +84,24 @@
 * removeFromClient - When a torrent is detected as stalled, should it also be removed from the download client. Boolean value (true or false)
 * Torrents - the list of download clients
 * MediaManagers - the list of Media managers (Servarr apps)
+
+### Torrents - Download Clients Object
+* Name - (required) A name for the Download Client. This is to help organize the list and is used in logging output.
+* URL - (optional) The URL used to interact with the client API.
+* User - (optional) The username to authenticate the API
+* PWD - (optional) The password to authenticate the API
+* downloadIDName - (required) The key or value which uniquely identifies each torrent from the perspective of the manager (TODO: move this into the MediaManagers)
+* stalledExecTest - (required) The Boolean test evaluation which identifies a torrent as Stalled
+* idName - (optional) The name of the key which uniquely identifies the torrent from the perspective of the download client
+* removeCMD - (required) The command used to remove the torrent from the client, used for Orphan torrent removal.
+* incompleteCMD - (required) The command used to gather a list of incomplete torrents (TODO: is this needed now that Completed Stall handling has been implemented?)
+* allTorrentsCMD - (required) The command used to get all torrents in the download client.
+* ageTest - (required) Command used for day based evaluations to determine the age of the torrent in the download client. (TODO: Determine redundancy based on ageEval key)
+* ageEval - (required) Command used to get the value in days of the torrent's age.
+* dlProg - (required) Command used to get the progress of a torrent.
+
+### MediaManagers - Only Servarr Platform Supported (TODO: how can this be expanded?)
+* Name - (required) Value used to identify this manager instance, used to organize the config JSON and output to logs.
+* apiKey - (required) Value used to authenticate to the manager API
+* URL - (required) Value used to communicate with the manager platform
+* blacklistName - (required) Name of the query parameter used for blocking a release in the manager platform.
