@@ -4,6 +4,7 @@
     "StallAge": "24",
     "OrphanAge": "360",
     "CompleteAge": "15",
+    "FailedImportAge": 24,
     "StallList": "/config/StallList.json",
     "LogFile": "/config/Log-2.txt",
     "removeFromClient": true,
@@ -78,14 +79,15 @@
 ## Breakdown of Variables
 * StallAge - Amount of iterations of the script run to consider a torrent stalled. If the script is set to run every hour this is equivalent to the amount of hours.
 * OrphanAge - Amount of days since torrent was added to client before final removal. Orphans are lingering torrents that are no longer present in the manager queue. When removeFromClient is false this is the amount of days until that torrent is finally removed.
-* CompleteAge - Amount of iterations to keep completed torrents left in the manager queue. They will remain in the queue when there was an issue importing the file so this will mean the download will be blacklisted. So if you want to allow yourself more time to manage manual imports set this value to something very high.
+* FailedImportAge - Amount of iterations to keep completed torrents left in the manager queue. They will remain in the queue when there was an issue importing the file so this will mean the download will be blacklisted. So if you want to allow yourself more time to manage manual imports set this value to something very high.
 * StallList - File path to the Stalled torrent list database. Each time a torrent is confirmed stalled it will appear and the count will increase if there's no change in progress.
 * LogFile - File Path for the log file.
 * removeFromClient - When a torrent is detected as stalled, should it also be removed from the download client. Boolean value (true or false)
 * Torrents - the list of download clients
 * MediaManagers - the list of Media managers (Servarr apps)
 
-### Torrents - Download Clients Object
+### Torrents
+**Download Clients Object**
 * Name - (required) A name for the Download Client. This is to help organize the list and is used in logging output.
 * URL - (optional) The URL used to interact with the client API.
 * User - (optional) The username to authenticate the API
@@ -100,8 +102,74 @@
 * ageEval - (required) Command used to get the value in days of the torrent's age.
 * dlProg - (required) Command used to get the progress of a torrent.
 
-### MediaManagers - Only Servarr Platform Supported (TODO: expand to be more dynamic)
+### MediaManagers
+**Only Servarr Platform Supported** (TODO: expand to be more dynamic)
 * Name - (required) Value used to identify this manager instance, used to organize the config JSON and output to logs.
 * apiKey - (required) Value used to authenticate to the manager API
 * URL - (required) Value used to communicate with the manager platform
 * blacklistName - (required) Name of the query parameter used for blocking a release in the manager platform.
+
+## Custom Commands
+Below refers to the values stored in the following Variables:
+* `Torrents.[].stalledExecTest`
+* `Torrents.[].removeCMD`
+* `Torrents.[].incompleteCMD`
+* `Torrents.[].allTorrentsCMD`
+* `Torrents.[].ageTest`
+* `Torrents.[].ageEval`
+* `Torrents.[].dlProg`
+
+**Syntax**: PowerShell
+
+**Usable Variables**
+```{powershell}
+$config = Get-Content /config/config.json | ConvertFrom-Json
+# The configuration file shown above
+...
+$LogFile = $config.LogFile
+# LogFile value in $config. Logging is done by Start-Transcript
+...
+$StallAge = $config.StallAge
+# Stalled Torrent Age
+...
+$OrphanAge = $config.OrphanAge
+# Orphan Torrent Removal Age
+...
+$FailedImportAge = $config.FailedImportAge
+# Completed Torrent Import Failure Age
+...
+$StallListFile = $config.StallListFile
+# The file which contains the JSON array database
+...
+$Torrents = $config.Torrents
+# The array for Download Clients
+...
+$global:StallList = @{}
+if (test-path $StallListFile) {
+        $global:StallList = $(Get-Content $StallListFile | convertfrom-json -AsHashtable)
+}
+# Stall List data table, initializes as an empty hash table, otherwise convert JSON file to hashtable
+...
+$global:OrigList = $global:StallList.Clone()
+# OrigList is cloned from StallList to ensure continually stalled items are only marked once (applies to Bulk based torrents in manager queue)
+...
+$global:Marked = @{}
+ForEach ($key in $global:StallList.keys) {
+        $global:Marked[$key] = $false
+}
+# This appears like duplicate logic,  (TODO: evaluate logic)
+...
+$MediaManagers = $config.MediaManagers
+# The Servarr instances
+...
+ForEach ($Manager in $MediaManagers) {
+# $Manager is the specific Servarr instances
+...
+$apiKey = $Manager.apikey
+# Instance API key for requests
+...
+$AuthURL = "apikey=$apiKey"
+# Authorization Query for URL concatenate
+...
+
+```
