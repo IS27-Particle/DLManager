@@ -4,6 +4,7 @@
     "CompleteAge": "15",
     "StallListFile": "/config/StallList.json",
     "LogFile": "/config/Log-2.txt",
+    "removeFromClient": true",
     "Torrents": [
         {
             "Name": "qbittorrent",
