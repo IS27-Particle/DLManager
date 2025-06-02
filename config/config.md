@@ -95,6 +95,7 @@
 * downloadIDName - (required) The key or value which uniquely identifies each torrent from the perspective of the manager (TODO: move this into the MediaManagers)
 * stalledExecTest - (required) The Boolean test evaluation which identifies a torrent as Stalled
 * idName - (optional) The name of the key which uniquely identifies the torrent from the perspective of the download client
+* connectionCMD - (optional) Required if the download client requires a connection initialization
 * removeCMD - (required) The command used to remove the torrent from the client, used for Orphan torrent removal.
 * incompleteCMD - (required) The command used to gather a list of incomplete torrents (TODO: is this needed now that Completed Stall handling has been implemented?)
 * allTorrentsCMD - (required) The command used to get all torrents in the download client.
@@ -121,7 +122,12 @@ Below refers to the values stored in the following Variables:
 
 **Syntax**: PowerShell
 
-**Usable Variables**
+**stalledExecTest**
+qBittorrent: `$Torrent -ne $Null -and $Torrent.state -ne 'downloading' -and $Torrent.state -ne 'forcedDL'`
+
+
+**Context**
+### global scope 
 ```{powershell}
 $config = Get-Content /config/config.json | ConvertFrom-Json
 # The configuration file shown above
@@ -162,6 +168,9 @@ ForEach ($key in $global:StallList.keys) {
 $MediaManagers = $config.MediaManagers
 # The Servarr instances
 ...
+```
+### Manager scope
+```{powershell}
 ForEach ($Manager in $MediaManagers) {
 # $Manager is the specific Servarr instances
 ...
@@ -169,7 +178,105 @@ $apiKey = $Manager.apikey
 # Instance API key for requests
 ...
 $AuthURL = "apikey=$apiKey"
-# Authorization Query for URL concatenate
+# Authorization Query for URL concatenate (TODO: Can probably be omitted)
 ...
-
+$URL = $Manager.URL
+# URL for web requests to manager API
+...
+$QueueURL = "$URL/queue"
+# URL for gathering the queue from the manager
+...
+$page = 1
+# Pagination
+...
+$headers = @{
+     'X-api-key'=$apiKey
+}
+# Servarr API header
+...
+$Queue = Invoke-RestMethod -Uri "$($QueueURL)?page=$($page)&pageSize=20&sortDirection=descending&sortKey=progress" -Headers $headers
+# Initial GET for queue to use the totalRecords value
+...
+$Queue = Invoke-RestMethod -Uri "$($QueueURL)?page=$($page)&pageSize=$($Queue.totalRecords)&sortDirection=descending&sortKey=progress" -Headers $headers
+# Gets entire queue
+...
+```
+### Download Client Scope
+```{powershell}
+ForEach ($Client in $Torrents) {
+# $Client will refer to an individual download client definition
+...
+Invoke-Expression -Command $Client.connectionCMD
+# Usage of connectionCMD
+...
+$Client.Torrents = Invoke-Expression -Command $Client.incompleteCMD
+# Usage of incompleteCMD stores the result in a Torrents key inside the object so this cannot be used for anything else (TODO: this should attach to the Manager object, not the Client object)
+...
+$AllTorrents = Invoke-Expression -Command $Client.alltorrentsCMD
+# Usage of allTorrentsCMD (TODO: Should be prepared once per client prior to loop)
+...
+$Stalled = $Queue.records | Where-Object {$_.downloadClient -eq "$($Client.Name)"}
+# Filter the related queue items (TODO: for dynamic manager usage the names will require defining from manager perspective)
+```
+### Queue Item Scope
+```{powershell}
+Foreach ($QEpisode in $Stalled) {
+...
+$Torrent = $Client.Torrents | Where-Object {$_."$($Client.downloadIDName)" -eq $QEpisode.downloadId}
+### usage of downloadIDName filters the list of queue items
+...
+$Torrent = $AllTorrents | Where-Object {$_."$($Client.downloadIDName)" -eq $QEpisode.downloadId}
+# Filter all torrents for the item
+...
+If ((Invoke-Expression -Command $($Client.stalledExecTest)) -or $QEpisode.status -eq "completed") {
+# usage of stalledExecTest
+...
+$StallID = $($Torrent."$($Client.idName)")
+# Usage of idName and capture of id value
+...
+If ((([int]$StallList["$($StallID)"] -gt $StallAge -or $(Invoke-Expression -Command $Client.ageTest)) -and $QEpisode.status -ne "completed") -or ($QEpisode.status -eq "completed" -and [int]$StallList["$($StallID)"] -gt $FailedImportAge)) {
+# Usage of age test and implementation of StallAge and FailedImportAge
+...
+Invoke-RestMethod -Method 'DELETE' -Uri "$QueueURL/$($QEpisode.id)?$($AuthURL)&$($Manager.blacklistname)=true&removeFromClient=$($config.removeFromClient)"
+# Deletion of queue items in Servarr Platform 
+...
+If ($StallList["$($StallID)Prog"] -eq $(Invoke-Expression -Command $Client.dlProg)) {
+# Implementation of dlProg
+```
+### End Queue Item Scope
+### End Client Scope
+### End Manager Scope
+### Client Scope
+```{powershell}
+ForEach ($Client in $Torrents) {
+# Iterate Clients
+...
+$StalledIDs = $Client.Torrents["$($Client.idName)"]
+# (TODO: This works? what is this doing?)
+```
+### Client Item Scope
+```{powershell}
+Foreach ($StalledID in $StalledIDs) {
+# $StalledID is the torrent item
+...
+If ([int]$OrigList["$($StalledID)"] -gt $OrphanAge) {
+# Orphan Age Implementation
+...
+Invoke-Expression -Command $Client.removeCMD
+# usage of removeCMD
+```
+### End Client Item Scope
+### Client item scope
+```{powershell}
+If (Invoke-Expression -Command $Client.ageTest) {
+# Age Test implementation
+...
+$StalledID = $Torrent."$($Client.idName)"
+# ID of item
+...
+Write-Host "$($Torrent.Name) will be removed, Torrent age is $(Invoke-Expression -Command $Client.ageEval)"
+# Age Eval implementation 
+...
+Invoke-Expression -Command $Client.removeCMD
+# Usage of removeCMD
 ```
